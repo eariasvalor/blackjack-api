@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: blackjack-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: blackjack
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - blackjack-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: blackjack-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blackjack
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - blackjack-network
+
+volumes:
+  mongodb_data:
+  mysql_data:
+
+networks:
+  blackjack-network:
+    driver: bridge

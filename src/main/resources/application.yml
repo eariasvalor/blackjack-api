@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: blackjack-api
+
+  profiles:
+    active: dev
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/blackjack
+      database: blackjack
+
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/blackjack
+    username: root
+    password: root
+
+logging:
+  level:
+    root: INFO
+    com.blackjack: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.r2dbc: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+      database: ${MONGODB_DATABASE}
+
+  r2dbc:
+    url: ${R2DBC_URL}
+    username: ${R2DBC_USERNAME}
+    password: ${R2DBC_PASSWORD}
+
+logging:
+  level:
+    root: WARN
+    com.blackjack: INFO
