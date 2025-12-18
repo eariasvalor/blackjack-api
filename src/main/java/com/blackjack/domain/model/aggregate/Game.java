@@ -170,10 +170,6 @@ public class Game {
         return playerId;
     }
 
-    public PlayerName getPlayerName() {
-        return playerName;
-    }
-
     public Hand getPlayerHand() {
         return playerHand;
     }
@@ -225,6 +221,6 @@ public class Game {
 
     @Override
     public String toString() {
-        return "Game{" + "id=" + id.value() + ", playerId=" + playerId.value() + ", playerName=" + playerName.value() + ", status=" + status + ", playerHandValue=" + playerHand.calculateValue() + ", dealerHandValue=" + dealerHand.calculateValue() + ", turnCount=" + turnHistory.size() + '}';
+        return "Game{" + "id=" + id.value() + ", playerId=" + playerId.value() + ", status=" + status + ", playerHandValue=" + playerHand.calculateValue() + ", dealerHandValue=" + dealerHand.calculateValue() + ", turnCount=" + turnHistory.size() + '}';
     }
 }
