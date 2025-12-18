@@ -2,7 +2,7 @@ package com.blackjack.domain.model.valueobject.card;
 
 public enum Rank {
 
-    ACE("A", 1),
+    ACE("A", 11),
     TWO("2", 2),
     THREE("3", 3),
     FOUR("4", 4),

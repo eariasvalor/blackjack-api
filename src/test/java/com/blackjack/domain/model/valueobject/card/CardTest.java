@@ -41,11 +41,11 @@ class CardTest {
     }
 
     @Test
-    @DisplayName("Should get value 1 for Ace")
+    @DisplayName("Should get value 11 for Ace")
     void shouldGetValue1ForAce() {
         Card ace = new Card(Rank.ACE, Suit.SPADES);
 
-        assertThat(ace.getValue()).isEqualTo(1);
+        assertThat(ace.getValue()).isEqualTo(11);
     }
 
     @Test

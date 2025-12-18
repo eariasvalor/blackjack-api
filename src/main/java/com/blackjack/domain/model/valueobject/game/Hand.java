@@ -45,8 +45,8 @@ public class Hand {
             }
         }
 
-        while (aceCount > 0 && value + 10 <= BLACKJACK_VALUE) {
-            value += 10;
+        while (aceCount > 0 && value > BLACKJACK_VALUE) {
+            value -= (ACE_HIGH_VALUE - ACE_LOW_VALUE);
             aceCount--;
         }
 

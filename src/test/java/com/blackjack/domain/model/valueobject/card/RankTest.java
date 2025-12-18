@@ -9,9 +9,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 class RankTest {
 
     @Test
-    @DisplayName("Ace should have value 1")
+    @DisplayName("Ace should have value 11")
     void aceShouldHaveValue1() {
-        assertThat(Rank.ACE.getValue()).isEqualTo(1);
+        assertThat(Rank.ACE.getValue()).isEqualTo(11);
         assertThat(Rank.ACE.getSymbol()).isEqualTo("A");
     }
 
