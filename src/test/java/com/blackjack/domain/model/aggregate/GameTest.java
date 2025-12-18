@@ -3,7 +3,6 @@ package com.blackjack.domain.model.aggregate;
 import com.blackjack.domain.model.aggregate.mother.GameMother;
 import com.blackjack.domain.model.valueobject.game.GameStatus;
 import com.blackjack.domain.model.valueobject.player.PlayerId;
-import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.model.valueobject.turn.Turn;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,14 +18,12 @@ class GameTest {
     @DisplayName("Should create game with initial deal")
     void shouldCreateGameWithInitialDeal() {
         PlayerId playerId = PlayerId.generate();
-        PlayerName playerName = new PlayerName("John");
 
-        Game game = GameMother.withPlayer(playerId, playerName);
+        Game game = GameMother.withPlayer(playerId);
 
         assertThat(game).isNotNull();
         assertThat(game.getId()).isNotNull();
         assertThat(game.getPlayerId()).isEqualTo(playerId);
-        assertThat(game.getPlayerName()).isEqualTo(playerName);
         assertThat(game.getStatus()).isEqualTo(GameStatus.PLAYING);
         assertThat(game.getCreatedAt()).isNotNull();
         assertThat(game.getUpdatedAt()).isNotNull();

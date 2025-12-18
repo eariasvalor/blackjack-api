@@ -7,6 +7,7 @@ import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.model.valueobject.turn.Turn;
 import com.blackjack.domain.event.DomainEvent;
 import com.blackjack.domain.event.GameFinishedEvent;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,18 +19,26 @@ public class Game {
 
     private static final int DEALER_MUST_HIT_BELOW = 17;
 
+    @Getter
     private final GameId id;
 
+    @Getter
     private final PlayerId playerId;
 
+    @Getter
     private final Hand playerHand;
+    @Getter
     private final Hand dealerHand;
+    @Getter
     private final Deck deck;
+    @Getter
     private GameStatus status;
 
     private final List<Turn> turnHistory;
 
+    @Getter
     private final LocalDateTime createdAt;
+    @Getter
     private LocalDateTime updatedAt;
 
     private final List<DomainEvent> domainEvents;
@@ -162,40 +171,8 @@ public class Game {
     }
 
 
-    public GameId getId() {
-        return id;
-    }
-
-    public PlayerId getPlayerId() {
-        return playerId;
-    }
-
-    public Hand getPlayerHand() {
-        return playerHand;
-    }
-
-    public Hand getDealerHand() {
-        return dealerHand;
-    }
-
-    public Deck getDeck() {
-        return deck;
-    }
-
-    public GameStatus getStatus() {
-        return status;
-    }
-
     public List<Turn> getTurnHistory() {
         return Collections.unmodifiableList(turnHistory);
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public List<DomainEvent> getDomainEvents() {
