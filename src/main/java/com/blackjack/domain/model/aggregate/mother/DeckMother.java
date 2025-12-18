@@ -1,4 +1,4 @@
-package com.blackjack.domain.model.aggregate;
+package com.blackjack.domain.model.aggregate.mother;
 
 import com.blackjack.domain.model.valueobject.card.Card;
 import com.blackjack.domain.model.valueobject.card.Rank;
