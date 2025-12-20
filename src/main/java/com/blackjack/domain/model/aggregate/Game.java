@@ -19,26 +19,18 @@ public class Game {
 
     private static final int DEALER_MUST_HIT_BELOW = 17;
 
-    @Getter
     private final GameId id;
 
-    @Getter
     private final PlayerId playerId;
 
-    @Getter
     private final Hand playerHand;
-    @Getter
     private final Hand dealerHand;
-    @Getter
     private final Deck deck;
-    @Getter
     private GameStatus status;
 
     private final List<Turn> turnHistory;
 
-    @Getter
     private final LocalDateTime createdAt;
-    @Getter
     private LocalDateTime updatedAt;
 
     private final List<DomainEvent> domainEvents;
@@ -79,6 +71,38 @@ public class Game {
         game.dealInitialCards();
 
         return game;
+    }
+
+    public GameId getId() {
+        return id;
+    }
+
+    public PlayerId getPlayerId() {
+        return playerId;
+    }
+
+    public Hand getPlayerHand() {
+        return playerHand;
+    }
+
+    public Hand getDealerHand() {
+        return dealerHand;
+    }
+
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public Turn hit() {

@@ -19,14 +19,14 @@ public class DeckMother {
                 new Card(Rank.KING, Suit.DIAMONDS)   
         );
     }
-    
+
     public static Deck dealerWillBust() {
         return withTopCards(
-                new Card(Rank.NINE, Suit.HEARTS),    
-                new Card(Rank.NINE, Suit.SPADES),    
-                new Card(Rank.TEN, Suit.CLUBS),      
-                new Card(Rank.KING, Suit.DIAMONDS),  
-                new Card(Rank.FIVE, Suit.HEARTS)     
+                new Card(Rank.NINE, Suit.HEARTS),
+                new Card(Rank.NINE, Suit.SPADES),
+                new Card(Rank.TEN, Suit.CLUBS),
+                new Card(Rank.SIX, Suit.DIAMONDS),
+                new Card(Rank.KING, Suit.HEARTS)
         );
     }
     

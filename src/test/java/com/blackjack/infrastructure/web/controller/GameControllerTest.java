@@ -32,7 +32,7 @@ class GameControllerTest {
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")
     void shouldCreateNewGame() {
-        CreateGameRequest request = new CreateGameRequest("Juan");
+        CreateGameRequest request = new CreateGameRequest("John");
 
         GameResponse expectedResponse = new GameResponse(
                 "game-123",
@@ -61,7 +61,7 @@ class GameControllerTest {
                 .expectBody()
                 .jsonPath("$.gameId").isEqualTo("game-123")
                 .jsonPath("$.playerId").isEqualTo("player-456")
-                .jsonPath("$.playerName").isEqualTo("Juan")
+                .jsonPath("$.playerName").isEqualTo("John")
                 .jsonPath("$.playerHand[0]").isEqualTo("7♠")
                 .jsonPath("$.playerHand[1]").isEqualTo("9♥")
                 .jsonPath("$.dealerVisibleCards[0]").isEqualTo("K♦")
