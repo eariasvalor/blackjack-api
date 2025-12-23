@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class PlayerEntityMapper {
 
     public PlayerEntity toEntity(Player player) {
-        return PlayerEntity.builder()
+        PlayerEntity entity = PlayerEntity.builder()
                 .id(player.getId().value())
                 .name(player.getName().value())
                 .gamesPlayed(player.getGamesPlayed())
@@ -21,9 +21,13 @@ public class PlayerEntityMapper {
                 .createdAt(player.getCreatedAt())
                 .updatedAt(player.getUpdatedAt())
                 .build();
+
+        return entity;
     }
 
     public Player toDomain(PlayerEntity entity) {
+        entity.markAsNotNew();
+
         PlayerId playerId = PlayerId.from(entity.getId());
         PlayerName playerName = new PlayerName(entity.getName());
 
@@ -38,5 +42,18 @@ public class PlayerEntityMapper {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
+    }
+
+    public PlayerEntity updateEntity(PlayerEntity existingEntity, Player player) {
+        existingEntity.setName(player.getName().value());
+        existingEntity.setGamesPlayed(player.getGamesPlayed());
+        existingEntity.setGamesWon(player.getGamesWon());
+        existingEntity.setGamesLost(player.getGamesLost());
+        existingEntity.setGamesTied(player.getGamesTied());
+        existingEntity.setWinRate(player.getWinRate());
+        existingEntity.setUpdatedAt(player.getUpdatedAt());
+        existingEntity.markAsNotNew();
+
+        return existingEntity;
     }
 }
