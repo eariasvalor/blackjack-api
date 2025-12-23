@@ -61,16 +61,15 @@ public class Game {
         List<Turn> turnHistory = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        Game game = new Game(
-                gameId, playerId,
-                playerHand, dealerHand, deck,
-                status, turnHistory,
-                now, now
-        );
+        Game game = new Game(gameId, playerId, playerHand, dealerHand, deck, status, turnHistory, now, now);
 
         game.dealInitialCards();
 
         return game;
+    }
+
+    public static Game reconstitute(GameId id, PlayerId playerId, Hand playerHand, Hand dealerHand, Deck deck, GameStatus status, List<Turn> turnHistory, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new Game(id, playerId, playerHand, dealerHand, deck, status, turnHistory, createdAt, updatedAt);
     }
 
     public GameId getId() {
@@ -186,11 +185,7 @@ public class Game {
 
     private void emitGameFinishedEvent() {
         if (status.isFinished()) {
-            domainEvents.add(GameFinishedEvent.create(
-                    this.id,
-                    this.playerId,
-                    this.status
-            ));
+            domainEvents.add(GameFinishedEvent.create(this.id, this.playerId, this.status));
         }
     }
 
@@ -206,6 +201,7 @@ public class Game {
     public void clearDomainEvents() {
         domainEvents.clear();
     }
+
 
     @Override
     public boolean equals(Object o) {
