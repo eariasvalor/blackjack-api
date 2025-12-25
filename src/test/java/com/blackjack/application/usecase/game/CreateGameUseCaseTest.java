@@ -2,12 +2,9 @@ package com.blackjack.application.usecase.game;
 
 import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
+import com.blackjack.application.mapper.GameResponseMapper;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
-import com.blackjack.domain.model.valueobject.game.GameId;
-import com.blackjack.domain.model.valueobject.game.GameStatus;
-import com.blackjack.domain.model.valueobject.game.Hand;
-import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.repository.GameRepository;
 import com.blackjack.domain.repository.PlayerRepository;
@@ -15,17 +12,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CreateGameUseCase Tests")
 class CreateGameUseCaseTest {
 
     @Mock
@@ -34,90 +34,113 @@ class CreateGameUseCaseTest {
     @Mock
     private PlayerRepository playerRepository;
 
-    private CreateGameUseCase createGameUseCase;
+    @Mock
+    private GameResponseMapper mapper;
+
+    @InjectMocks
+    private CreateGameUseCase useCase;
+
+    private Player testPlayer;
+    private Game testGame;
+    private GameResponse testResponse;
+    private CreateGameRequest request;
 
     @BeforeEach
     void setUp() {
+        testPlayer = Player.create(new PlayerName("TestPlayer"));
+        testGame = Game.create(testPlayer.getId());
+
+        testResponse = new GameResponse(
+                testGame.getId().value(),
+                testPlayer.getId().value(),
+                testPlayer.getName().value(),
+                Collections.emptyList(),
+                Collections.emptyList(),
+                0,
+                0,
+                "PLAYING",
+                Collections.emptyList(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        request = new CreateGameRequest("TestPlayer");
     }
 
     @Test
     @DisplayName("Should create game with existing player")
     void shouldCreateGameWithExistingPlayer() {
-        CreateGameRequest request = new CreateGameRequest("Juan");
-        PlayerName playerName = new PlayerName("Juan");
-
-        Player existingPlayer = mock(Player.class);
-        when(existingPlayer.getId()).thenReturn(new PlayerId("player-123"));
-        when(existingPlayer.getName()).thenReturn(playerName);
-
         when(playerRepository.findByName(any(PlayerName.class)))
-                .thenReturn(Mono.just(existingPlayer));
-
-        Game mockGame = mock(Game.class);
-        when(mockGame.getId()).thenReturn(new GameId("game-456"));
-        when(mockGame.getPlayerId()).thenReturn(new PlayerId("player-123"));
-        when(mockGame.getStatus()).thenReturn(GameStatus.PLAYING);
-        when(mockGame.getPlayerHand()).thenReturn(mock(Hand.class));
-        when(mockGame.getDealerHand()).thenReturn(mock(Hand.class));
-
+                .thenReturn(Mono.just(testPlayer));
+        when(playerRepository.save(any(Player.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(gameRepository.save(any(Game.class)))
-                .thenReturn(Mono.just(mockGame));
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(mapper.toResponse(any(Game.class), any(Player.class)))
+                .thenReturn(testResponse);
 
+        Mono<GameResponse> result = useCase.execute(request);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertThat(response).isNotNull();
+                    assertThat(response.playerName()).isEqualTo("TestPlayer");
+                })
+                .verifyComplete();
+
+        verify(playerRepository).findByName(any(PlayerName.class));
+        verify(gameRepository).save(any(Game.class));
+        verify(mapper).toResponse(any(Game.class), any(Player.class));
     }
 
     @Test
-    @DisplayName("Should create new player if not exists")
+    @DisplayName("Should return game with initial deal")
+    void shouldReturnGameWithInitialDeal() {
+        when(playerRepository.findByName(any(PlayerName.class)))
+                .thenReturn(Mono.just(testPlayer));
+        when(playerRepository.save(any(Player.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(gameRepository.save(any(Game.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(mapper.toResponse(any(Game.class), any(Player.class)))
+                .thenReturn(testResponse);
+
+        Mono<GameResponse> result = useCase.execute(request);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertThat(response).isNotNull();
+                })
+                .verifyComplete();
+
+        verify(gameRepository).save(any(Game.class));
+        verify(mapper).toResponse(any(Game.class), any(Player.class));
+    }
+
+    @Test
+    @DisplayName("Should create new player if doesn't exist")
     void shouldCreateNewPlayerIfNotExists() {
-        CreateGameRequest request = new CreateGameRequest("Maria");
-        PlayerName playerName = new PlayerName("Maria");
+        CreateGameRequest newPlayerRequest = new CreateGameRequest("NewPlayer");
 
         when(playerRepository.findByName(any(PlayerName.class)))
                 .thenReturn(Mono.empty());
-
-        Player newPlayer = mock(Player.class);
-        when(newPlayer.getId()).thenReturn(new PlayerId("player-789"));
-        when(newPlayer.getName()).thenReturn(playerName);
-
         when(playerRepository.save(any(Player.class)))
-                .thenReturn(Mono.just(newPlayer));
-
-        Game mockGame = mock(Game.class);
-        when(mockGame.getId()).thenReturn(new GameId("game-999"));
-        when(mockGame.getPlayerId()).thenReturn(new PlayerId("player-789"));
-        when(mockGame.getStatus()).thenReturn(GameStatus.PLAYING);
-        when(mockGame.getPlayerHand()).thenReturn(mock(Hand.class));
-        when(mockGame.getDealerHand()).thenReturn(mock(Hand.class));
-
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(gameRepository.save(any(Game.class)))
-                .thenReturn(Mono.just(mockGame));
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(mapper.toResponse(any(Game.class), any(Player.class)))
+                .thenReturn(testResponse);
 
-    }
+        Mono<GameResponse> result = useCase.execute(newPlayerRequest);
 
-    @Test
-    @DisplayName("Should return game with 2 cards for player and 1 for dealer")
-    void shouldReturnGameWithInitialDeal() {
-        CreateGameRequest request = new CreateGameRequest("Pedro");
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertThat(response).isNotNull();
+                })
+                .verifyComplete();
 
-        Player existingPlayer = mock(Player.class);
-        when(existingPlayer.getId()).thenReturn(new PlayerId("player-111"));
-        when(existingPlayer.getName()).thenReturn(new PlayerName("Pedro"));
-
-        when(playerRepository.findByName(any(PlayerName.class)))
-                .thenReturn(Mono.just(existingPlayer));
-
-        Game mockGame = mock(Game.class);
-        when(mockGame.getId()).thenReturn(new GameId("game-222"));
-        when(mockGame.getPlayerId()).thenReturn(new PlayerId("player-111"));
-        when(mockGame.getStatus()).thenReturn(GameStatus.PLAYING);
-
-        Hand playerHand = mock(Hand.class);
-        Hand dealerHand = mock(Hand.class);
-
-        when(mockGame.getPlayerHand()).thenReturn(playerHand);
-        when(mockGame.getDealerHand()).thenReturn(dealerHand);
-
-        when(gameRepository.save(any(Game.class)))
-                .thenReturn(Mono.just(mockGame));
-
+        verify(playerRepository).findByName(any(PlayerName.class));
+        verify(playerRepository).save(any(Player.class));
+        verify(gameRepository).save(any(Game.class));
+        verify(mapper).toResponse(any(Game.class), any(Player.class));
     }
 }
