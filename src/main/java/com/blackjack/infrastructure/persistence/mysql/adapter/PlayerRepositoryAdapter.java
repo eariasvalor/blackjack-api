@@ -10,6 +10,7 @@ import com.blackjack.infrastructure.persistence.mysql.repository.PlayerR2dbcRepo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,19 +19,29 @@ import reactor.core.publisher.Mono;
 @Repository
 @Primary
 @RequiredArgsConstructor
+@SuppressWarnings({"SqlResolve", "SqlNoDataSourceInspection"})
 public class PlayerRepositoryAdapter implements PlayerRepository {
 
     private final PlayerR2dbcRepository r2dbcRepository;
     private final PlayerEntityMapper mapper;
+    private final DatabaseClient databaseClient;
 
     @Override
     public Mono<Player> save(Player player) {
         log.debug("Saving player to MySQL: {}", player.getId().value());
 
-        PlayerEntity entity = mapper.toEntity(player);
-
-        return r2dbcRepository.save(entity)
-                .map(mapper::toDomain)
+        return r2dbcRepository.existsById(player.getId().value())
+                .flatMap(exists -> {
+                    if (exists) {
+                        // Player EXISTE → UPDATE
+                        log.debug("Player exists, performing UPDATE: {}", player.getId().value());
+                        return updatePlayer(player);
+                    } else {
+                        // Player NO EXISTE → INSERT usando SQL directo
+                        log.debug("Player does not exist, performing INSERT: {}", player.getId().value());
+                        return insertPlayer(player);
+                    }
+                })
                 .doOnSuccess(saved ->
                         log.debug("Player saved successfully: {} ({})",
                                 saved.getName().value(),
@@ -41,6 +52,54 @@ public class PlayerRepositoryAdapter implements PlayerRepository {
                                 player.getId().value(),
                                 error.getMessage())
                 );
+    }
+
+    private Mono<Player> insertPlayer(Player player) {
+        String sql = """
+            INSERT INTO players (id, name, games_played, games_won, games_lost, games_tied, win_rate, created_at, updated_at)
+            VALUES (:id, :name, :gamesPlayed, :gamesWon, :gamesLost, :gamesTied, :winRate, :createdAt, :updatedAt)
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("id", player.getId().value())
+                .bind("name", player.getName().value())
+                .bind("gamesPlayed", player.getGamesPlayed())
+                .bind("gamesWon", player.getGamesWon())
+                .bind("gamesLost", player.getGamesLost())
+                .bind("gamesTied", player.getGamesTied())
+                .bind("winRate", player.getWinRate())
+                .bind("createdAt", player.getCreatedAt())
+                .bind("updatedAt", player.getUpdatedAt())
+                .fetch()
+                .rowsUpdated()
+                .thenReturn(player);
+    }
+
+    private Mono<Player> updatePlayer(Player player) {
+        String sql = """
+            UPDATE players 
+            SET name = :name, 
+                games_played = :gamesPlayed, 
+                games_won = :gamesWon, 
+                games_lost = :gamesLost, 
+                games_tied = :gamesTied, 
+                win_rate = :winRate, 
+                updated_at = :updatedAt
+            WHERE id = :id
+            """;
+
+        return databaseClient.sql(sql)
+                .bind("id", player.getId().value())
+                .bind("name", player.getName().value())
+                .bind("gamesPlayed", player.getGamesPlayed())
+                .bind("gamesWon", player.getGamesWon())
+                .bind("gamesLost", player.getGamesLost())
+                .bind("gamesTied", player.getGamesTied())
+                .bind("winRate", player.getWinRate())
+                .bind("updatedAt", player.getUpdatedAt())
+                .fetch()
+                .rowsUpdated()
+                .thenReturn(player);
     }
 
     @Override
