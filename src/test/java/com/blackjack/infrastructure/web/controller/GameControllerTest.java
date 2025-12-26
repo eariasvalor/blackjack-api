@@ -3,6 +3,7 @@ package com.blackjack.infrastructure.web.controller;
 import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.usecase.game.CreateGameUseCase;
+import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ class GameControllerTest {
 
     @MockBean
     private CreateGameUseCase createGameUseCase;
+
+    @MockBean
+    private GetGameByIdUseCase getGameByIdUseCase;
 
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")
