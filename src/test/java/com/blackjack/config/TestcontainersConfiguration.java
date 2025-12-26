@@ -14,8 +14,7 @@ public class TestcontainersConfiguration {
     @ServiceConnection
     MongoDBContainer mongoDBContainer() {
         return new MongoDBContainer(DockerImageName.parse("mongo:7.0"))
-                .withExposedPorts(27017)
-                .withReuse(true);
+                .withExposedPorts(27017);
     }
 
     @Bean
@@ -24,7 +23,6 @@ public class TestcontainersConfiguration {
         return new MySQLContainer<>(DockerImageName.parse("mysql:8.0"))
                 .withDatabaseName("blackjack_test")
                 .withUsername("test_user")
-                .withPassword("test_pass")
-                .withReuse(true);
+                .withPassword("test_pass");
     }
 }
