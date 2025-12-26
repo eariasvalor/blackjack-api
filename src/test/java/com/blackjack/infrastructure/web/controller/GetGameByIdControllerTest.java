@@ -2,7 +2,9 @@ package com.blackjack.infrastructure.web.controller;
 
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.exception.GameNotFoundException;
+import com.blackjack.application.usecase.game.CreateGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
+import com.blackjack.application.usecase.game.PlayGameUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ class GetGameByIdControllerTest {
 
     @MockBean
     private com.blackjack.application.usecase.game.CreateGameUseCase createGameUseCase;
+
+    @MockBean
+    private PlayGameUseCase playGameUseCase;
 
     @Test
     @DisplayName("GET /game/{id} - Should return 200 OK when game exists")

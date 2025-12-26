@@ -1,6 +1,7 @@
 package com.blackjack.infrastructure.web.exception;
 
 import com.blackjack.application.exception.GameNotFoundException;
+import com.blackjack.application.usecase.game.PlayGameUseCase;
 import com.blackjack.infrastructure.web.controller.GameController;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,9 @@ class GlobalExceptionHandlerTest {
 
     @MockBean
     private com.blackjack.application.usecase.game.CreateGameUseCase createGameUseCase;
+
+    @MockBean
+    private PlayGameUseCase playGameUseCase;
 
     @Test
     @DisplayName("Should handle GameNotFoundException and return 404")
