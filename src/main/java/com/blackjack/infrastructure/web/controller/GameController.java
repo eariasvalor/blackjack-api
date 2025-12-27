@@ -4,6 +4,7 @@ import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.request.PlayGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.usecase.game.CreateGameUseCase;
+import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +28,7 @@ public class GameController {
     private final CreateGameUseCase createGameUseCase;
     private final GetGameByIdUseCase getGameByIdUseCase;
     private final PlayGameUseCase playGameUseCase;
+    private final DeleteGameUseCase deleteGameUseCase;
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
@@ -63,5 +65,21 @@ public class GameController {
                 .map(ResponseEntity::ok)
                 .doOnSuccess(response -> log.info("POST /game/{}/play - Action {} executed. Game status: {}",
                         id, request.action(), response.getBody().status()));
+    }
+
+    @DeleteMapping("/{id}/delete")
+    @Operation(
+            summary = "Delete game",
+            description = "Deletes an existing Blackjack game by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Game successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Game not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public Mono<ResponseEntity<Void>> deleteGame(@PathVariable String id) {
+        return deleteGameUseCase.execute(id)
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                .doOnSuccess(response -> log.info("DELETE /game/{}/delete - Game deleted successfully", id));
     }
 }
