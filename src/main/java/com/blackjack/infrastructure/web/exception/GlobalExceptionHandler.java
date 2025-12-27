@@ -1,6 +1,7 @@
 package com.blackjack.infrastructure.web.exception;
 
 import com.blackjack.application.exception.GameNotFoundException;
+import com.blackjack.application.exception.PlayerNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,5 +77,19 @@ public class GlobalExceptionHandler {
                 .build();
 
         return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error));
+    }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public Mono<ResponseEntity<ErrorResponse>> handlePlayerNotFoundException(PlayerNotFoundException ex) {
+        log.error("Player not found: {}", ex.getMessage());
+
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Not Found")
+                .message(ex.getMessage())
+                .build();
+
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND).body(error));
     }
 }
