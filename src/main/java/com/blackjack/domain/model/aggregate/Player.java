@@ -157,7 +157,17 @@ public class Player {
         return updatedAt;
     }
 
-    // ========== Object Methods ==========
+    public void recordWin() {
+        recordGameResult(GameStatus.PLAYER_WIN);
+    }
+
+    public void recordLoss() {
+        recordGameResult(GameStatus.DEALER_WIN);
+    }
+
+    public void recordTie() {
+        recordGameResult(GameStatus.TIE);
+    }
 
     @Override
     public boolean equals(Object o) {
