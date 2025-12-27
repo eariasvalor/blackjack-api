@@ -33,11 +33,9 @@ public class PlayerRepositoryAdapter implements PlayerRepository {
         return r2dbcRepository.existsById(player.getId().value())
                 .flatMap(exists -> {
                     if (exists) {
-                        // Player EXISTE → UPDATE
                         log.debug("Player exists, performing UPDATE: {}", player.getId().value());
                         return updatePlayer(player);
                     } else {
-                        // Player NO EXISTE → INSERT usando SQL directo
                         log.debug("Player does not exist, performing INSERT: {}", player.getId().value());
                         return insertPlayer(player);
                     }
@@ -185,6 +183,17 @@ public class PlayerRepositoryAdapter implements PlayerRepository {
         return r2dbcRepository.count()
                 .doOnSuccess(count ->
                         log.debug("Total players: {}", count)
+                );
+    }
+
+    @Override
+    public Flux<Player> findAllByOrderByWinRateDesc(int limit, int offset) {
+        log.debug("Finding players ordered by win rate (limit: {}, offset: {})", limit, offset);
+
+        return r2dbcRepository.findAllOrderedByWinRate(limit, offset)
+                .map(mapper::toDomain)
+                .doOnComplete(() ->
+                        log.debug("Completed finding players ordered by win rate")
                 );
     }
 }

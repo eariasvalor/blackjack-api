@@ -14,5 +14,7 @@ public interface PlayerRepository {
     Flux<Player> findTopByWinRate(int limit);
     Mono<Boolean> existsByName(PlayerName name);
     Mono<Boolean> existsById(PlayerId id);
+    Flux<Player> findAllByOrderByWinRateDesc(int limit, int offset);
     Mono<Long> count();
+
 }

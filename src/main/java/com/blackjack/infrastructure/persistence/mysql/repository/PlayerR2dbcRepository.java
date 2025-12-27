@@ -18,4 +18,9 @@ public interface PlayerR2dbcRepository extends R2dbcRepository<PlayerEntity, Str
 
     @Query("SELECT COUNT(*) > 0 FROM players WHERE LOWER(name) = LOWER(:name)")
     Mono<Boolean> existsByNameIgnoreCase(String name);
+
+    @Query("SELECT * FROM players ORDER BY win_rate DESC, games_played DESC LIMIT :limit OFFSET :offset")
+    Flux<PlayerEntity> findAllOrderedByWinRate(int limit, int offset);
+
+
 }
