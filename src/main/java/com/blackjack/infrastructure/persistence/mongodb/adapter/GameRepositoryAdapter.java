@@ -1,9 +1,11 @@
 package com.blackjack.infrastructure.persistence.mongodb.adapter;
 
+import com.blackjack.domain.event.GameFinishedEvent;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.valueobject.game.GameId;
 import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.repository.GameRepository;
+import com.blackjack.infrastructure.event.DomainEventPublisher;
 import com.blackjack.infrastructure.persistence.mongodb.document.GameDocument;
 import com.blackjack.infrastructure.persistence.mongodb.mapper.GameDocumentMapper;
 import com.blackjack.infrastructure.persistence.mongodb.repository.GameMongoRepository;
@@ -22,6 +24,7 @@ public class GameRepositoryAdapter implements GameRepository {
 
     private final GameMongoRepository mongoRepository;
     private final GameDocumentMapper mapper;
+    private final DomainEventPublisher eventPublisher;
 
     @Override
     public Mono<Game> save(Game game) {
@@ -31,9 +34,17 @@ public class GameRepositoryAdapter implements GameRepository {
 
         return mongoRepository.save(document)
                 .map(mapper::toDomain)
-                .doOnSuccess(saved ->
-                        log.debug("Game saved successfully: {}", saved.getId().value())
-                )
+                .doOnSuccess(savedGame -> {
+                    log.debug("Game saved successfully: {}", savedGame.getId().value());
+
+                    game.getDomainEvents().forEach(event -> {
+                        if (event instanceof GameFinishedEvent gameFinishedEvent) {
+                            eventPublisher.publishGameFinishedEvent(gameFinishedEvent);
+                        }
+                    });
+                    game.clearDomainEvents();
+                })
+
                 .doOnError(error ->
                         log.error("Error saving game {}: {}", game.getId().value(), error.getMessage())
                 );

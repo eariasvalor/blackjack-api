@@ -7,6 +7,8 @@ import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.model.valueobject.turn.Turn;
 import com.blackjack.domain.event.DomainEvent;
 import com.blackjack.domain.event.GameFinishedEvent;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -33,7 +35,8 @@ public class Game {
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private final List<DomainEvent> domainEvents;
+    private List<DomainEvent> domainEvents = new ArrayList<>();
+
 
     private Game(GameId id, PlayerId playerId, Hand playerHand, Hand dealerHand, Deck deck, GameStatus status, List<Turn> turnHistory, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = Objects.requireNonNull(id, "GameId cannot be null");
@@ -112,7 +115,7 @@ public class Game {
 
         if (playerHand.isBusted()) {
             this.status = GameStatus.DEALER_WIN;
-            emitGameFinishedEvent();
+            publishGameFinishedEvent();
         }
 
         Turn turn = Turn.playerHit(turnHistory.size() + 1, card, playerHand.calculateValue());
@@ -148,7 +151,7 @@ public class Game {
         this.status = calculateResult();
         this.updatedAt = LocalDateTime.now();
 
-        emitGameFinishedEvent();
+        publishGameFinishedEvent();
 
         return dealerTurns;
     }
@@ -183,25 +186,21 @@ public class Game {
         }
     }
 
-    private void emitGameFinishedEvent() {
-        if (status.isFinished()) {
-            domainEvents.add(GameFinishedEvent.create(this.id, this.playerId, this.status));
-        }
-    }
-
-
     public List<Turn> getTurnHistory() {
         return Collections.unmodifiableList(turnHistory);
     }
 
     public List<DomainEvent> getDomainEvents() {
-        return Collections.unmodifiableList(domainEvents);
+        return Collections.unmodifiableList(new ArrayList<>(domainEvents));
     }
 
     public void clearDomainEvents() {
         domainEvents.clear();
     }
 
+    private void publishGameFinishedEvent() {
+        domainEvents.add(GameFinishedEvent.of(id, playerId, status));
+    }
 
     @Override
     public boolean equals(Object o) {
