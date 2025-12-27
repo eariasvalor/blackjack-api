@@ -3,6 +3,7 @@ package com.blackjack.infrastructure.web.controller;
 import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.usecase.game.CreateGameUseCase;
+import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,9 @@ class GameControllerTest {
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
+
+    @MockBean
+    private DeleteGameUseCase deleteGameUseCase;
 
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")
@@ -105,4 +109,5 @@ class GameControllerTest {
                 .exchange()
                 .expectStatus().isBadRequest();
     }
+
 }

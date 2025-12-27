@@ -2,6 +2,7 @@ package com.blackjack.infrastructure.web.exception;
 
 import com.blackjack.application.exception.GameNotFoundException;
 import com.blackjack.application.usecase.game.CreateGameUseCase;
+import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import com.blackjack.infrastructure.web.controller.GameController;
@@ -33,6 +34,9 @@ class GlobalExceptionHandlerTest {
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
+
+    @MockBean
+    private DeleteGameUseCase deleteGameUseCase;
 
     @Test
     @DisplayName("Should handle GameNotFoundException and return 404")
