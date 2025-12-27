@@ -1,6 +1,8 @@
 package com.blackjack.infrastructure.web.exception;
 
 import com.blackjack.application.exception.GameNotFoundException;
+import com.blackjack.application.usecase.game.CreateGameUseCase;
+import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import com.blackjack.infrastructure.web.controller.GameController;
 import org.junit.jupiter.api.DisplayName;
@@ -24,10 +26,10 @@ class GlobalExceptionHandlerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private com.blackjack.application.usecase.game.GetGameByIdUseCase getGameByIdUseCase;
+    private GetGameByIdUseCase getGameByIdUseCase;
 
     @MockBean
-    private com.blackjack.application.usecase.game.CreateGameUseCase createGameUseCase;
+    private CreateGameUseCase createGameUseCase;
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
