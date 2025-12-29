@@ -1,17 +1,21 @@
+version: '3.8'
+
 services:
+
   mongodb:
     image: mongo:7.0
     container_name: blackjack-mongodb
+    restart: unless-stopped
     ports:
-      - "${MONGODB_PORT}:27017"
+      - "${MONGODB_PORT:-27017}:27017"
     environment:
-      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE:-blackjack}
     volumes:
       - mongodb_data:/data/db
     networks:
       - blackjack-network
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/${MONGO_INITDB_DATABASE} --quiet
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -19,51 +23,30 @@ services:
   mysql:
     image: mysql:8.0
     container_name: blackjack-mysql
+    restart: unless-stopped
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-blackjack}
+      MYSQL_USER: ${MYSQL_USER:-blackjack_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-blackjack_pass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # ← AÑADIDO
     networks:
       - blackjack-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root_password}" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  blackjack-api:
-    image: eariasvalor/blackjack-api:latest
-    container_name: blackjack-api
-    ports:
-      - "${SERVER_PORT}:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/${MONGO_INITDB_DATABASE}
-      SPRING_R2DBC_URL: r2dbc:mysql://mysql:3306/${MYSQL_DATABASE}
-      SPRING_R2DBC_USERNAME: ${MYSQL_USER}
-      SPRING_R2DBC_PASSWORD: ${MYSQL_PASSWORD}
-    depends_on:
-      mongodb:
-        condition: service_healthy
-      mysql:
-        condition: service_healthy
-    networks:
-      - blackjack-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-
 volumes:
   mongodb_data:
+    driver: local
   mysql_data:
+    driver: local
 
 networks:
   blackjack-network:
