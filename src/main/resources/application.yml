@@ -2,16 +2,15 @@ spring:
   application:
     name: blackjack-api
 
-
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/blackjack}
+      uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URI:mongodb://localhost:27017/blackjack}}
       auto-index-creation: true
 
   r2dbc:
-    url: ${R2DBC_URL:r2dbc:mysql://localhost:3306/blackjack}
-    username: ${MYSQL_USER:blackjack_user}
-    password: ${MYSQL_PASSWORD:blackjack_pass}
+    url: ${SPRING_R2DBC_URL:${R2DBC_URL:r2dbc:mysql://localhost:3306/blackjack}}
+    username: ${SPRING_R2DBC_USERNAME:${MYSQL_USER:blackjack_user}}
+    password: ${SPRING_R2DBC_PASSWORD:${MYSQL_PASSWORD:blackjack_pass}}
     pool:
       initial-size: 10
       max-size: 20
@@ -23,7 +22,7 @@ spring:
       continue-on-error: false
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${PORT:${SERVER_PORT:8080}}
 
 logging:
   level:
@@ -39,4 +38,18 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
-  show-actuator: false
+  show-actuator: true
+
+# Spring Boot Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
