@@ -38,9 +38,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     enabled: true
-  show-actuator: true
+  show-actuator: false
 
-# Spring Boot Actuator
 management:
   endpoints:
     web:
