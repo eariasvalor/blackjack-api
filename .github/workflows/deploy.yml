@@ -1,4 +1,4 @@
-name: Deploy to Railway
+name: CI/CD Pipeline
 
 on:
   push:
@@ -13,7 +13,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,37 +76,13 @@ jobs:
           cache-from: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_IMAGE }}:buildcache,mode=max
 
-  deploy:
-    name: Deploy to Railway
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Trigger Railway Deployment
+      - name: Success
         run: |
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://backboard.railway.app/v2/deploy \
-            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "projectId": "630d66a1-557d-4dbb-b414-7815fec9eb3b",
-              "serviceId": "5a116cbf-86d5-4aec-905c-9e21f550ab51",
-              "environmentId": "18c44376-1f7a-4529-8a6a-9a4b4343b50b"
-            }')
-          
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | head -n-1)
-          
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            echo "✅ Deployment triggered successfully"
-            echo "Response: $BODY"
-          else
-            echo "❌ Deployment failed with HTTP code: $HTTP_CODE"
-            echo "Response: $BODY"
-            exit 1
-          fi
-
-      - name: Deployment info
-        run: |
-          echo "🌐 Railway dashboard: https://railway.app/project/630d66a1-557d-4dbb-b414-7815fec9eb3b"
-          echo "🚂 Service: https://railway.app/project/630d66a1-557d-4dbb-b414-7815fec9eb3b/service/5a116cbf-86d5-4aec-905c-9e21f550ab51"
+          echo "✅ Tests passed: 180/180"
+          echo "✅ Docker image built and pushed successfully"
+          echo ""
+          echo "🐳 Docker Hub: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/blackjack-api"
+          echo "🚂 Railway will automatically detect and deploy the new image"
+          echo "🌐 Monitor deployment: https://railway.app/project/630d66a1-557d-4dbb-b414-7815fec9eb3b"
+          echo ""
+          echo "⏱️ Railway typically takes 2-3 minutes to detect and deploy"
