@@ -1,21 +1,15 @@
 spring:
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:${MONGODB_URL:mongodb://localhost:27017/blackjack}}
+      uri: ${MONGODB_URL:mongodb://localhost:27017/blackjack}
 
   r2dbc:
-    url: ${SPRING_R2DBC_URL:${MYSQL_URL:r2dbc:mysql://localhost:3306/blackjack}}
-
-  sql:
-    init:
-      mode: always
-      platform: mysql
+    url: ${MYSQL_URL:r2dbc:mysql://localhost:3306/blackjack}
 
 logging:
   level:
     com.blackjack: INFO
     org.springframework: WARN
-    io.r2dbc: DEBUG
 
 server:
   port: ${PORT:8080}
