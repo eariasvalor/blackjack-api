@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/health") // La URL será /health (más simple que /actuator/health)
+@RequestMapping("/health")
 @Tag(name = "Health Check", description = "Endpoint for verifying the API status")
 public class HealthController {
 
