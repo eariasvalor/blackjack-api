@@ -1,0 +1,61 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# IDE - VS Code
+.vscode/
+
+# IDE - Eclipse
+.settings/
+.classpath
+.project
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# GitHub
+.github/
+
+# Documentation
+README.md
+DEPLOYMENT.md
+docs/
+
+# Docker
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Tests
+**/test-results/
+coverage/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
