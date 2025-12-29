@@ -6,6 +6,7 @@ import com.blackjack.application.usecase.game.CreateGameUseCase;
 import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ class GetGameByIdControllerTest {
 
     @MockBean
     private DeleteGameUseCase deleteGameUseCase;
+
+    @MockBean
+    private UpdatePlayerNameUseCase updatePlayerNameUseCase;
 
     @Test
     @DisplayName("GET /game/{id} - Should return 200 OK when game exists")

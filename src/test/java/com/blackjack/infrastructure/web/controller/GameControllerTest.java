@@ -6,6 +6,7 @@ import com.blackjack.application.usecase.game.CreateGameUseCase;
 import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ class GameControllerTest {
 
     @MockBean
     private DeleteGameUseCase deleteGameUseCase;
+
+    @MockBean
+    private UpdatePlayerNameUseCase updatePlayerNameUseCase;
 
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")

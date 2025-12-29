@@ -5,6 +5,7 @@ import com.blackjack.application.usecase.game.CreateGameUseCase;
 import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ class DeleteGameControllerTest {
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
+
+    @MockBean
+    private UpdatePlayerNameUseCase updatePlayerNameUseCase;
 
     @Test
     @DisplayName("DELETE /game/{id}/delete - Should delete game successfully")
