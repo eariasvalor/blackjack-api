@@ -1,0 +1,15 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URL:mongodb://localhost:27017/blackjack}
+
+  r2dbc:
+    url: ${MYSQL_URL:r2dbc:mysql://localhost:3306/blackjack}
+
+logging:
+  level:
+    com.blackjack: INFO
+    org.springframework: WARN
+
+server:
+  port: ${PORT:8080}
