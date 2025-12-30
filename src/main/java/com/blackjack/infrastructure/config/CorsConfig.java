@@ -19,12 +19,13 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Collections.singletonList("*"));
+        config.setAllowedOrigins(Arrays.asList(
+                "https://blackjack.up.railway.app",
+                "http://localhost:3000"));
 
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
-
         config.setAllowedHeaders(Collections.singletonList("*"));
-
+        config.setAllowCredentials(true);
         config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
