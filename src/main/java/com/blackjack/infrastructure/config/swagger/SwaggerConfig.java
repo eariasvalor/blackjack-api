@@ -13,12 +13,12 @@ import java.util.List;
 @Configuration
 public class SwaggerConfig {
 
-    @Value("${spring.r2dbc.url:https://blackjack-api-production-90af.up.railway.app}")
+    @Value("${spring.r2dbc.url:https://blackjack.up.railway.app}")
     private String productionUrl;
 
     @Bean
     public OpenAPI customOpenAPI() {
-        String railwayUrl = "https://blackjack-api-production-90af.up.railway.app";
+        String railwayUrl = "https://blackjack.up.railway.app";
 
         return new OpenAPI()
                 .info(new Info()
