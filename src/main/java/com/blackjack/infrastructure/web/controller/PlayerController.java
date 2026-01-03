@@ -2,6 +2,7 @@ package com.blackjack.infrastructure.web.controller;
 
 import com.blackjack.application.dto.request.UpdatePlayerRequest;
 import com.blackjack.application.dto.response.PlayerResponse;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +22,7 @@ import reactor.core.publisher.Mono;
 public class PlayerController {
 
     private final UpdatePlayerNameUseCase updatePlayerNameUseCase;
+    private final DeletePlayerUseCase deletePlayerUseCase;
 
     @PutMapping("/{id}")
     @Operation(
@@ -45,6 +47,26 @@ public class PlayerController {
                 .doOnSuccess(response ->
                         log.info("PUT /player/{} - Player name updated successfully to: {}",
                                 id, request.playerName())
+                );
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete a player", description = "Deletes a player and all their associated game history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Player deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Player not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public Mono<ResponseEntity<Void>> deletePlayer(
+            @Parameter(description = "Player ID", required = true)
+            @PathVariable String id) {
+
+        log.info("DELETE /player/{} - Request to delete player", id);
+
+        return deletePlayerUseCase.execute(id)
+                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
+                .doOnSuccess(response ->
+                        log.info("DELETE /player/{} - Player deleted successfully", id)
                 );
     }
 }
