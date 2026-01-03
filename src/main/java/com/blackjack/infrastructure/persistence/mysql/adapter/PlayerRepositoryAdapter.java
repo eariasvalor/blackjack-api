@@ -196,4 +196,17 @@ public class PlayerRepositoryAdapter implements PlayerRepository {
                         log.debug("Completed finding players ordered by win rate")
                 );
     }
+
+    @Override
+    public Mono<Void> deleteById(PlayerId id) {
+        log.debug("Deleting player from MySQL: {}", id.value());
+
+        return r2dbcRepository.deleteById(id.value())
+                .doOnSuccess(v ->
+                        log.debug("Player deleted: {}", id.value())
+                )
+                .doOnError(error ->
+                        log.error("Error deleting player {}: {}", id.value(), error.getMessage())
+                );
+    }
 }

@@ -109,4 +109,18 @@ public class GameRepositoryAdapter implements GameRepository {
                         log.debug("Game {} exists: {}", id.value(), exists)
                 );
     }
+
+    @Override
+    public Mono<Void> deleteByPlayerId(PlayerId playerId) {
+        log.debug("Deleting all games for player from MongoDB: {}", playerId.value());
+
+        return mongoRepository.deleteByPlayerId(playerId.value())
+                .then()
+                .doOnSuccess(v ->
+                        log.debug("Games deleted for player: {}", playerId.value())
+                )
+                .doOnError(error ->
+                        log.error("Error deleting games for player {}: {}", playerId.value(), error.getMessage())
+                );
+    }
 }

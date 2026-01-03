@@ -7,6 +7,7 @@ import com.blackjack.application.usecase.game.CreateGameUseCase;
 import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ class UpdatePlayerControllerTest {
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
