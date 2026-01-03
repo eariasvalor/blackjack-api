@@ -7,6 +7,7 @@ import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ class GameControllerTest {
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")
     void shouldCreateNewGame() {
-        CreateGameRequest request = new CreateGameRequest("John");
+        CreateGameRequest request = new CreateGameRequest("John", 1);
 
         GameResponse expectedResponse = new GameResponse(
                 "game-123",
@@ -61,7 +62,8 @@ class GameControllerTest {
                 "PLAYING",
                 List.of(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                DeckCount.of(1)
         );
 
         when(createGameUseCase.execute(any(CreateGameRequest.class)))
@@ -91,7 +93,7 @@ class GameControllerTest {
     @Test
     @DisplayName("POST /game/new - Should return 400 Bad Request when player name is empty")
     void shouldReturnBadRequestWhenPlayerNameIsEmpty() {
-        CreateGameRequest request = new CreateGameRequest("");
+        CreateGameRequest request = new CreateGameRequest("", 1);
 
         webTestClient.post()
                 .uri("/game/new")

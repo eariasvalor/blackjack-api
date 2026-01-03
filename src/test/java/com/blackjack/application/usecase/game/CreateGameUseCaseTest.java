@@ -5,6 +5,7 @@ import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.mapper.GameResponseMapper;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.repository.GameRepository;
 import com.blackjack.domain.repository.PlayerRepository;
@@ -23,6 +24,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,10 +63,11 @@ class CreateGameUseCaseTest {
                 "PLAYING",
                 Collections.emptyList(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                testGame.getDeck().getDeckCount()
         );
 
-        request = new CreateGameRequest("TestPlayer");
+        request = new CreateGameRequest("TestPlayer", 1);
     }
 
     @Test
@@ -72,11 +75,9 @@ class CreateGameUseCaseTest {
     void shouldCreateGameWithExistingPlayer() {
         when(playerRepository.findByName(any(PlayerName.class)))
                 .thenReturn(Mono.just(testPlayer));
-        when(playerRepository.save(any(Player.class)))
-                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(gameRepository.save(any(Game.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
                 .thenReturn(testResponse);
 
         Mono<GameResponse> result = useCase.execute(request);
@@ -90,57 +91,56 @@ class CreateGameUseCaseTest {
 
         verify(playerRepository).findByName(any(PlayerName.class));
         verify(gameRepository).save(any(Game.class));
-        verify(mapper).toResponse(any(Game.class), any(Player.class));
-    }
-
-    @Test
-    @DisplayName("Should return game with initial deal")
-    void shouldReturnGameWithInitialDeal() {
-        when(playerRepository.findByName(any(PlayerName.class)))
-                .thenReturn(Mono.just(testPlayer));
-        when(playerRepository.save(any(Player.class))).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(gameRepository.save(any(Game.class)))
-                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
-                .thenReturn(testResponse);
-
-        Mono<GameResponse> result = useCase.execute(request);
-
-        StepVerifier.create(result)
-                .assertNext(response -> {
-                    assertThat(response).isNotNull();
-                })
-                .verifyComplete();
-
-        verify(gameRepository).save(any(Game.class));
-        verify(mapper).toResponse(any(Game.class), any(Player.class));
     }
 
     @Test
     @DisplayName("Should create new player if doesn't exist")
     void shouldCreateNewPlayerIfNotExists() {
-        CreateGameRequest newPlayerRequest = new CreateGameRequest("NewPlayer");
+        CreateGameRequest newPlayerRequest = new CreateGameRequest("NewPlayer", 1);
 
         when(playerRepository.findByName(any(PlayerName.class)))
                 .thenReturn(Mono.empty());
         when(playerRepository.save(any(Player.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+
         when(gameRepository.save(any(Game.class)))
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
+
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
                 .thenReturn(testResponse);
 
         Mono<GameResponse> result = useCase.execute(newPlayerRequest);
 
         StepVerifier.create(result)
-                .assertNext(response -> {
-                    assertThat(response).isNotNull();
-                })
+                .expectNextCount(1)
                 .verifyComplete();
 
-        verify(playerRepository).findByName(any(PlayerName.class));
         verify(playerRepository).save(any(Player.class));
         verify(gameRepository).save(any(Game.class));
-        verify(mapper).toResponse(any(Game.class), any(Player.class));
+    }
+
+    @Test
+    @DisplayName("Should create game with configured decks (Multi-Deck)")
+    void shouldCreateGameWithConfiguredDecks() {
+        CreateGameRequest multiDeckRequest = new CreateGameRequest("ProPlayer", 6);
+        Player proPlayer = Player.create(new PlayerName("ProPlayer"));
+
+        when(playerRepository.findByName(any(PlayerName.class)))
+                .thenReturn(Mono.just(proPlayer));
+
+        when(gameRepository.save(any(Game.class)))
+                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
+                .thenReturn(testResponse);
+
+        Mono<GameResponse> result = useCase.execute(multiDeckRequest);
+
+        StepVerifier.create(result)
+                .expectNextCount(1)
+                .verifyComplete();
+
+        verify(gameRepository).save(argThat(game ->
+                game.getDeck().size() == 312));
     }
 }

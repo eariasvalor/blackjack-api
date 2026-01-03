@@ -6,6 +6,7 @@ import com.blackjack.domain.model.valueobject.card.Suit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -126,7 +127,7 @@ class DeckTest {
 
         assertThatThrownBy(() -> Deck.reconstitute(cards, 0))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("must have exactly 52 cards");
+                .hasMessageContaining("must be a multiple of 52");
     }
 
     @Test
@@ -190,5 +191,24 @@ class DeckTest {
 
         assertThat(deck1).isEqualTo(deck2);
         assertThat(deck1.hashCode()).isEqualTo(deck2.hashCode());
+    }
+
+    @Test
+    @DisplayName("Should create deck with multiple packs (e.g., 6 decks)")
+    void shouldCreateDeckWithMultiplePacks() {
+        DeckCount numberOfDecks = DeckCount.of(6);
+        Deck deck = Deck.createAndShuffle(numberOfDecks);
+        assertThat(deck.size()).isEqualTo(52 * numberOfDecks.value());
+        assertThat(deck.remainingCards()).isEqualTo(312);
+    }
+
+    @Test
+    @DisplayName("Should reconstitute deck with non-standard size")
+    void shouldReconstituteDeckWithNonStandardSize() {
+        List<Card> cards = new ArrayList<>();
+        for(int i=0; i<104; i++) cards.add(new Card(Rank.ACE, Suit.SPADES));
+        Deck deck = Deck.reconstitute(cards, 0);
+
+        assertThat(deck.size()).isEqualTo(104);
     }
 }

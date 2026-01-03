@@ -6,6 +6,7 @@ import com.blackjack.application.exception.GameNotFoundException;
 import com.blackjack.application.mapper.GameResponseMapper;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.game.GameId;
 import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.model.valueobject.player.PlayerName;
@@ -64,7 +65,8 @@ class PlayGameUseCaseTest {
                 "PLAYING",
                 Collections.emptyList(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                testGame.getDeck().getDeckCount()
         );
     }
 
@@ -80,7 +82,7 @@ class PlayGameUseCaseTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(playerRepository.findById(any(PlayerId.class)))
                 .thenReturn(Mono.just(testPlayer));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
                 .thenReturn(testResponse);
 
         Mono<GameResponse> result = useCase.execute(gameId, request);
@@ -95,7 +97,7 @@ class PlayGameUseCaseTest {
         verify(gameRepository).findById(any(GameId.class));
         verify(gameRepository).save(any(Game.class));
         verify(playerRepository).findById(any(PlayerId.class));
-        verify(mapper).toResponse(any(Game.class), any(Player.class));
+        verify(mapper).toResponse(any(Game.class), any(Player.class), any(DeckCount.class));
     }
 
     @Test
@@ -110,7 +112,7 @@ class PlayGameUseCaseTest {
                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
         when(playerRepository.findById(any(PlayerId.class)))
                 .thenReturn(Mono.just(testPlayer));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
                 .thenReturn(testResponse);
 
         Mono<GameResponse> result = useCase.execute(gameId, request);

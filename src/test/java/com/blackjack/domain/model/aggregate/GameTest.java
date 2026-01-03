@@ -1,6 +1,7 @@
 package com.blackjack.domain.model.aggregate;
 
 import com.blackjack.domain.model.aggregate.mother.GameMother;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.game.GameStatus;
 import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.model.valueobject.turn.Turn;
@@ -165,5 +166,16 @@ class GameTest {
         Game game = GameMother.wherePlayerHasBlackjack();
 
         assertThat(game.getPlayerHand().isBlackjack()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should create game with 6 decks")
+    void shouldCreateGameWith6Decks() {
+        PlayerId playerId = PlayerId.generate();
+        DeckCount numberOfDecks = DeckCount.of(6);
+
+        Game game = Game.create(playerId, numberOfDecks);
+
+        assertThat(game.getDeck().remainingCards()).isEqualTo(309);
     }
 }

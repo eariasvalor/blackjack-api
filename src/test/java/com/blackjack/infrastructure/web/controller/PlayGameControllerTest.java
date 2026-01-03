@@ -8,6 +8,7 @@ import com.blackjack.application.usecase.game.DeleteGameUseCase;
 import com.blackjack.application.usecase.game.GetGameByIdUseCase;
 import com.blackjack.application.usecase.game.PlayGameUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,8 @@ class PlayGameControllerTest {
                 "PLAYING",
                 Collections.emptyList(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                DeckCount.of(1)
         );
 
         when(playGameUseCase.execute(anyString(), any(PlayGameRequest.class)))
@@ -97,7 +99,8 @@ class PlayGameControllerTest {
                 "DEALER_WINS",
                 Collections.emptyList(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                DeckCount.of(1)
         );
 
         when(playGameUseCase.execute(anyString(), any(PlayGameRequest.class)))

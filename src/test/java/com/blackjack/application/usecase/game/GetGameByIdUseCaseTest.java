@@ -4,6 +4,7 @@ import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.mapper.GameResponseMapper;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.game.GameId;
 import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.model.valueobject.player.PlayerName;
@@ -64,7 +65,8 @@ class GetGameByIdUseCaseTest {
                 "PLAYING",
                 Collections.emptyList(),
                 LocalDateTime.now(),
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                testGame.getDeck().getDeckCount()
         );
     }
 
@@ -77,7 +79,7 @@ class GetGameByIdUseCaseTest {
                 .thenReturn(Mono.just(testGame));
         when(playerRepository.findById(any(PlayerId.class)))
                 .thenReturn(Mono.just(testPlayer));
-        when(mapper.toResponse(any(Game.class), any(Player.class)))
+        when(mapper.toResponse(any(Game.class), any(Player.class), any(DeckCount.class)))
                 .thenReturn(testResponse);
 
         Mono<GameResponse> result = useCase.execute(gameId);
@@ -92,7 +94,7 @@ class GetGameByIdUseCaseTest {
 
         verify(gameRepository).findById(any(GameId.class));
         verify(playerRepository).findById(any(PlayerId.class));
-        verify(mapper).toResponse(any(Game.class), any(Player.class));
+        verify(mapper).toResponse(any(Game.class), any(Player.class), any(DeckCount.class));
     }
 
     @Test
@@ -111,6 +113,6 @@ class GetGameByIdUseCaseTest {
 
         verify(gameRepository).findById(any(GameId.class));
         verify(playerRepository, never()).findById(any(PlayerId.class));
-        verify(mapper, never()).toResponse(any(Game.class), any(Player.class));
+        verify(mapper, never()).toResponse(any(Game.class), any(Player.class), any(DeckCount.class));
     }
 }

@@ -30,7 +30,7 @@ public class PlayGameUseCase {
                 .flatMap(game -> executeAction(game, request.action()))
                 .flatMap(gameRepository::save)
                 .flatMap(game -> playerRepository.findById(game.getPlayerId())
-                        .map(player -> mapper.toResponse(game, player)))
+                        .map(player -> mapper.toResponse(game, player,game.getDeck().getDeckCount())))
                 .doOnSuccess(response -> log.info("Action {} executed successfully for game: {}. Status: {}",
                         request.action(), gameId, response.status()))
                 .doOnError(error -> log.error("Error executing action {} for game {}: {}",

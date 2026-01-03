@@ -1,5 +1,7 @@
 package com.blackjack.application.dto.response;
 
+
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
@@ -38,6 +40,9 @@ public record GameResponse(
         LocalDateTime createdAt,
 
         @JsonProperty("updatedAt")
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+
+        @JsonProperty("number of decks")
+        DeckCount deckCount
 ) {
 }

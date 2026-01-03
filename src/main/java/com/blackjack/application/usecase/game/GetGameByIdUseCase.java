@@ -27,7 +27,7 @@ public class GetGameByIdUseCase {
         return gameRepository.findById(GameId.from(gameId))
                 .switchIfEmpty(Mono.error(new GameNotFoundException(gameId)))
                 .flatMap(game -> playerRepository.findById(game.getPlayerId())
-                        .map(player -> mapper.toResponse(game, player)))
+                        .map(player -> mapper.toResponse(game, player, game.getDeck().getDeckCount())))
                 .doOnSuccess(response -> log.info("Game found: {}", gameId))
                 .doOnError(error -> log.error("Error getting game {}: {}", gameId, error.getMessage()));
     }
