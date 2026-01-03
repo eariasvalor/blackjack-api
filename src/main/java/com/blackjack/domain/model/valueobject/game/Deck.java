@@ -11,7 +11,7 @@ import java.util.Objects;
 
 public class Deck {
 
-    private static final int TOTAL_CARDS = 52;
+    private static final int CARDS_PER_DECK = 52;
 
     private final List<Card> cards;
     private int currentIndex;
@@ -22,7 +22,11 @@ public class Deck {
     }
 
     public static Deck createAndShuffle() {
-        List<Card> cards = createStandardDeck();
+        return createAndShuffle(DeckCount.of(1));
+    }
+
+    public static Deck createAndShuffle(DeckCount count) {
+        List<Card> cards = createCards(count);
         Collections.shuffle(cards);
         return new Deck(cards, 0);
     }
@@ -34,9 +38,9 @@ public class Deck {
 
     public static Deck reconstitute(List<Card> cards, int currentIndex) {
         Objects.requireNonNull(cards, "Cards cannot be null");
-        if (cards.size() != TOTAL_CARDS) {
+        if (cards.size() == 0 || cards.size() % CARDS_PER_DECK != 0) {
             throw new IllegalArgumentException(
-                    "Deck must have exactly " + TOTAL_CARDS + " cards, got " + cards.size()
+                    "Deck size must be a multiple of " + CARDS_PER_DECK + ", got " + cards.size()
             );
         }
         if (currentIndex < 0 || currentIndex > cards.size()) {
@@ -45,6 +49,20 @@ public class Deck {
             );
         }
         return new Deck(cards, currentIndex);
+    }
+
+    private static List<Card> createCards(DeckCount count) {
+        int totalCards = 52 * count.value();
+        List<Card> cards = new ArrayList<>(totalCards);
+
+        for (int i = 0; i < count.value(); i++) {
+            for (Suit suit : Suit.values()) {
+                for (Rank rank : Rank.values()) {
+                    cards.add(new Card(rank, suit));
+                }
+            }
+        }
+        return cards;
     }
 
     public Card draw() {
@@ -79,7 +97,7 @@ public class Deck {
     }
 
     private static List<Card> createStandardDeck() {
-        List<Card> cards = new ArrayList<>(TOTAL_CARDS);
+        List<Card> cards = new ArrayList<>();
 
         for (Suit suit : Suit.values()) {
             for (Rank rank : Rank.values()) {
@@ -88,6 +106,10 @@ public class Deck {
         }
 
         return cards;
+    }
+
+    public DeckCount getDeckCount(){
+        return DeckCount.of(cards.size()/CARDS_PER_DECK);
     }
 
     @Override

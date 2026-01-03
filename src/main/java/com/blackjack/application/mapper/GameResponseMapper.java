@@ -5,6 +5,7 @@ import com.blackjack.application.dto.response.TurnResponse;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
 import com.blackjack.domain.model.valueobject.card.Card;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.turn.Turn;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class GameResponseMapper {
 
-    public GameResponse toResponse(Game game, Player player) {
+    public GameResponse toResponse(Game game, Player player, DeckCount deckCount) {
         return new GameResponse(
                 game.getId().value(),
                 game.getPlayerId().value(),
@@ -26,7 +27,8 @@ public class GameResponseMapper {
                 game.getStatus().name(),
                 mapTurns(game.getTurnHistory()),
                 game.getCreatedAt(),
-                game.getUpdatedAt()
+                game.getUpdatedAt(),
+                deckCount
         );
     }
 

@@ -5,6 +5,7 @@ import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.mapper.GameResponseMapper;
 import com.blackjack.domain.model.aggregate.Game;
 import com.blackjack.domain.model.aggregate.Player;
+import com.blackjack.domain.model.valueobject.game.DeckCount;
 import com.blackjack.domain.model.valueobject.player.PlayerName;
 import com.blackjack.domain.repository.GameRepository;
 import com.blackjack.domain.repository.PlayerRepository;
@@ -27,19 +28,12 @@ public class CreateGameUseCase {
 
         PlayerName playerName = new PlayerName(request.playerName());
 
+        DeckCount deckCount = DeckCount.of(request.numberOfDecks());
+
         return playerRepository.findByName(playerName)
-                .switchIfEmpty(createNewPlayer(playerName))
-                .flatMap(player -> createAndSaveGame(player))
-                .doOnSuccess(response ->
-                        log.info("Game created successfully: {} for player: {}",
-                                response.gameId(),
-                                response.playerName())
-                )
-                .doOnError(error ->
-                        log.error("Error creating game for player {}: {}",
-                                request.playerName(),
-                                error.getMessage())
-                );
+                .switchIfEmpty(Mono.defer(() -> createNewPlayer(playerName)))
+                .flatMap(player -> createAndSaveGame(player, deckCount))
+                .doOnError(error -> log.error("Error creating game: {}", error.getMessage()));
     }
 
     private Mono<Player> createNewPlayer(PlayerName playerName) {
@@ -52,15 +46,16 @@ public class CreateGameUseCase {
                 );
     }
 
-    private Mono<GameResponse> createAndSaveGame(Player player) {
-        log.debug("Creating game for player: {} ({})",
+    private Mono<GameResponse> createAndSaveGame(Player player, DeckCount deckCount) {
+        log.debug("Creating game for player: {} with {} decks",
                 player.getName().value(),
-                player.getId().value());
+                deckCount.value());
 
-        Game game = Game.create(player.getId());
+        Game game = Game.create(player.getId(), deckCount);
 
         return gameRepository.save(game)
-                .map(savedGame -> mapper.toResponse(savedGame, player));
+                .map(savedGame -> mapper.toResponse(savedGame, player, deckCount));
     }
 }
+
 

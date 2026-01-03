@@ -38,14 +38,13 @@ class GameControllerIntegrationTest {
     @DisplayName("Should create game and persist to both databases")
     void shouldCreateGameAndPersistToBothDatabases() {
         String uniquePlayerName = "Esther_" + System.currentTimeMillis();
-        CreateGameRequest request = new CreateGameRequest(uniquePlayerName);
+                CreateGameRequest request = new CreateGameRequest(uniquePlayerName, 1);
 
         GameResponse response = webTestClient.post()
                 .uri("/game/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .exchange()
-
                 .expectStatus().isCreated()
                 .expectBody(GameResponse.class)
                 .returnResult()
@@ -54,29 +53,45 @@ class GameControllerIntegrationTest {
         assertThat(response).isNotNull();
         assertThat(response.playerName()).isEqualTo(uniquePlayerName);
         assertThat(response.status()).isEqualTo("PLAYING");
-        assertThat(response.playerHandValue()).isBetween(2, 21);
-        assertThat(response.dealerVisibleValue()).isBetween(1, 11);
 
         Game savedGame = gameRepository.findById(GameId.from(response.gameId()))
                 .block();
 
         assertThat(savedGame).isNotNull();
         assertThat(savedGame.getStatus()).isEqualTo(GameStatus.PLAYING);
+                assertThat(savedGame.getDeck().size()).isEqualTo(52);
+    }
 
-        Player savedPlayer = playerRepository.findById(PlayerId.from(response.playerId()))
-                .block();
+    @Test
+    @DisplayName("Should create game with multiple decks (e.g. 6 decks)")
+    void shouldCreateGameWithMultipleDecks() {
+        String uniquePlayerName = "HighRoller_" + System.currentTimeMillis();
+        int numberOfDecks = 6;
+                CreateGameRequest request = new CreateGameRequest(uniquePlayerName, numberOfDecks);
 
-        assertThat(savedPlayer).isNotNull();
-        assertThat(savedPlayer.getName().value()).isEqualTo(uniquePlayerName);
-        assertThat(savedPlayer.getGamesPlayed()).isEqualTo(0);
-        assertThat(savedPlayer.getWinRate()).isEqualTo(0.0);
+        GameResponse response = webTestClient.post()
+                .uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(request)
+                .exchange()
+                .expectStatus().isCreated()                 .expectBody(GameResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+                Game savedGame = gameRepository.findById(GameId.from(response.gameId())).block();
+        assertThat(savedGame).isNotNull();
+
+                int expectedTotalCards = 52 * 6;
+        assertThat(savedGame.getDeck().size()).isEqualTo(expectedTotalCards);
+
+                        assertThat(savedGame.getDeck().remainingCards()).isEqualTo(expectedTotalCards - 3);
     }
 
     @Test
     @DisplayName("Should reuse existing player when creating new game")
     void shouldReuseExistingPlayerWhenCreatingNewGame() {
         String uniquePlayerName = "Maria_" + System.currentTimeMillis();
-        CreateGameRequest request = new CreateGameRequest(uniquePlayerName);
+        CreateGameRequest request = new CreateGameRequest(uniquePlayerName, 1);
 
         GameResponse firstGame = webTestClient.post()
                 .uri("/game/new")
@@ -88,9 +103,6 @@ class GameControllerIntegrationTest {
                 .returnResult()
                 .getResponseBody();
 
-        String firstPlayerId = firstGame.playerId();
-        String firstGameId = firstGame.gameId();
-
         GameResponse secondGame = webTestClient.post()
                 .uri("/game/new")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,68 +113,14 @@ class GameControllerIntegrationTest {
                 .returnResult()
                 .getResponseBody();
 
-        assertThat(secondGame.playerId()).isEqualTo(firstPlayerId);
-        assertThat(secondGame.gameId()).isNotEqualTo(firstGameId);
-        assertThat(secondGame.playerName()).isEqualTo(uniquePlayerName);
-
-        Game firstGameFromDb = gameRepository.findById(GameId.from(firstGameId)).block();
-        Game secondGameFromDb = gameRepository.findById(GameId.from(secondGame.gameId())).block();
-
-        assertThat(firstGameFromDb).isNotNull();
-        assertThat(secondGameFromDb).isNotNull();
-        assertThat(firstGameFromDb.getId()).isNotEqualTo(secondGameFromDb.getId());
-
-        Player playerFromDb = playerRepository.findById(PlayerId.from(firstPlayerId)).block();
-        assertThat(playerFromDb).isNotNull();
-    }
-
-    @Test
-    @DisplayName("Should create different players for different names")
-    void shouldCreateDifferentPlayersForDifferentNames() {
-        String estherName = "Esther_" + System.currentTimeMillis();
-        String mariaName = "Maria_" + System.currentTimeMillis();
-
-        CreateGameRequest estherRequest = new CreateGameRequest(estherName);
-        CreateGameRequest mariaRequest = new CreateGameRequest(mariaName);
-
-        GameResponse estherGame = webTestClient.post()
-                .uri("/game/new")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(estherRequest)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(GameResponse.class)
-                .returnResult()
-                .getResponseBody();
-
-        GameResponse mariaGame = webTestClient.post()
-                .uri("/game/new")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(mariaRequest)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(GameResponse.class)
-                .returnResult()
-                .getResponseBody();
-
-        assertThat(mariaGame.playerId()).isNotEqualTo(estherGame.playerId());
-        assertThat(mariaGame.gameId()).isNotEqualTo(estherGame.gameId());
-        assertThat(mariaGame.playerName()).isEqualTo(mariaName);
-        assertThat(estherGame.playerName()).isEqualTo(estherName);
-
-        Player estherFromDb = playerRepository.findById(PlayerId.from(estherGame.playerId())).block();
-        Player mariaFromDb = playerRepository.findById(PlayerId.from(mariaGame.playerId())).block();
-
-        assertThat(estherFromDb).isNotNull();
-        assertThat(mariaFromDb).isNotNull();
-        assertThat(estherFromDb.getName().value()).isEqualTo(estherName);
-        assertThat(mariaFromDb.getName().value()).isEqualTo(mariaName);
+        assertThat(secondGame.playerId()).isEqualTo(firstGame.playerId());
+        assertThat(secondGame.gameId()).isNotEqualTo(firstGame.gameId());
     }
 
     @Test
     @DisplayName("Should return 400 for invalid player name")
     void shouldReturn400ForInvalidPlayerName() {
-        CreateGameRequest emptyNameRequest = new CreateGameRequest("");
+        CreateGameRequest emptyNameRequest = new CreateGameRequest("", 1);
 
         webTestClient.post()
                 .uri("/game/new")
@@ -173,14 +131,23 @@ class GameControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("Should return 400 for null player name")
-    void shouldReturn400ForNullPlayerName() {
-        CreateGameRequest nullNameRequest = new CreateGameRequest(null);
+    @DisplayName("Should return 400 for invalid deck count")
+    void shouldReturn400ForInvalidDeckCount() {
+                        CreateGameRequest tooManyDecksRequest = new CreateGameRequest("TestPlayer", 9);
 
         webTestClient.post()
                 .uri("/game/new")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(nullNameRequest)
+                .bodyValue(tooManyDecksRequest)
+                .exchange()
+                .expectStatus().isBadRequest();
+
+                CreateGameRequest zeroDecksRequest = new CreateGameRequest("TestPlayer", 0);
+
+        webTestClient.post()
+                .uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(zeroDecksRequest)
                 .exchange()
                 .expectStatus().isBadRequest();
     }

@@ -52,7 +52,11 @@ public class Game {
     }
 
     public static Game create(PlayerId playerId) {
-        Deck deck = Deck.createAndShuffle();
+        return create(playerId, DeckCount.standard());
+    }
+
+    public static Game create(PlayerId playerId, DeckCount deckCount) {
+        Deck deck = Deck.createAndShuffle(deckCount);
         return createWithDeck(playerId, deck);
     }
 
