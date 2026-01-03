@@ -12,6 +12,8 @@ import com.blackjack.infrastructure.persistence.mongodb.repository.GameMongoRepo
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -122,5 +124,19 @@ public class GameRepositoryAdapter implements GameRepository {
                 .doOnError(error ->
                         log.error("Error deleting games for player {}: {}", playerId.value(), error.getMessage())
                 );
+    }
+
+    @Override
+    public Flux<Game> findAll(int page, int size) {
+        return mongoRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
+                .skip((long) page * size)
+                .take(size)
+                .map(mapper::toDomain)
+                .doOnComplete(() -> log.debug("Retrieved games page"));
+    }
+
+    @Override
+    public Mono<Long> count() {
+        return mongoRepository.count();
     }
 }

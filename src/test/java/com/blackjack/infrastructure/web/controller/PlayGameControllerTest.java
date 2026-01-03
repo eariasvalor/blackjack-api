@@ -3,11 +3,10 @@ package com.blackjack.infrastructure.web.controller;
 import com.blackjack.application.dto.request.PlayGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.exception.GameNotFoundException;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.game.*;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import com.blackjack.domain.model.valueobject.game.DeckCount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class PlayGameControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private PlayGameUseCase playGameUseCase;
+    private GetRankingUseCase getRankingUseCase;
 
     @MockBean
     private CreateGameUseCase createGameUseCase;
@@ -41,10 +40,19 @@ class PlayGameControllerTest {
     private GetGameByIdUseCase getGameByIdUseCase;
 
     @MockBean
+    private PlayGameUseCase playGameUseCase;
+
+    @MockBean
     private DeleteGameUseCase deleteGameUseCase;
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
     @DisplayName("POST /game/{id}/play - Should execute HIT action successfully")

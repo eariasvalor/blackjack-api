@@ -38,7 +38,7 @@ class GameControllerIntegrationTest {
     @DisplayName("Should create game and persist to both databases")
     void shouldCreateGameAndPersistToBothDatabases() {
         String uniquePlayerName = "Esther_" + System.currentTimeMillis();
-                CreateGameRequest request = new CreateGameRequest(uniquePlayerName, 1);
+        CreateGameRequest request = new CreateGameRequest(uniquePlayerName, 1);
 
         GameResponse response = webTestClient.post()
                 .uri("/game/new")
@@ -59,7 +59,7 @@ class GameControllerIntegrationTest {
 
         assertThat(savedGame).isNotNull();
         assertThat(savedGame.getStatus()).isEqualTo(GameStatus.PLAYING);
-                assertThat(savedGame.getDeck().size()).isEqualTo(52);
+        assertThat(savedGame.getDeck().size()).isEqualTo(52);
     }
 
     @Test
@@ -67,24 +67,24 @@ class GameControllerIntegrationTest {
     void shouldCreateGameWithMultipleDecks() {
         String uniquePlayerName = "HighRoller_" + System.currentTimeMillis();
         int numberOfDecks = 6;
-                CreateGameRequest request = new CreateGameRequest(uniquePlayerName, numberOfDecks);
+        CreateGameRequest request = new CreateGameRequest(uniquePlayerName, numberOfDecks);
 
         GameResponse response = webTestClient.post()
                 .uri("/game/new")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .exchange()
-                .expectStatus().isCreated()                 .expectBody(GameResponse.class)
+                .expectStatus().isCreated().expectBody(GameResponse.class)
                 .returnResult()
                 .getResponseBody();
 
-                Game savedGame = gameRepository.findById(GameId.from(response.gameId())).block();
+        Game savedGame = gameRepository.findById(GameId.from(response.gameId())).block();
         assertThat(savedGame).isNotNull();
 
-                int expectedTotalCards = 52 * 6;
+        int expectedTotalCards = 52 * 6;
         assertThat(savedGame.getDeck().size()).isEqualTo(expectedTotalCards);
 
-                        assertThat(savedGame.getDeck().remainingCards()).isEqualTo(expectedTotalCards - 3);
+        assertThat(savedGame.getDeck().remainingCards()).isEqualTo(expectedTotalCards - 3);
     }
 
     @Test
@@ -133,7 +133,7 @@ class GameControllerIntegrationTest {
     @Test
     @DisplayName("Should return 400 for invalid deck count")
     void shouldReturn400ForInvalidDeckCount() {
-                        CreateGameRequest tooManyDecksRequest = new CreateGameRequest("TestPlayer", 9);
+        CreateGameRequest tooManyDecksRequest = new CreateGameRequest("TestPlayer", 9);
 
         webTestClient.post()
                 .uri("/game/new")
@@ -142,7 +142,7 @@ class GameControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isBadRequest();
 
-                CreateGameRequest zeroDecksRequest = new CreateGameRequest("TestPlayer", 0);
+        CreateGameRequest zeroDecksRequest = new CreateGameRequest("TestPlayer", 0);
 
         webTestClient.post()
                 .uri("/game/new")
@@ -150,5 +150,46 @@ class GameControllerIntegrationTest {
                 .bodyValue(zeroDecksRequest)
                 .exchange()
                 .expectStatus().isBadRequest();
+    }
+
+    @Test
+    @DisplayName("Should retrieve all games from database with pagination")
+    void shouldRetrieveAllGames() {
+        String player1 = "PlayerOne_" + System.currentTimeMillis();
+        String player2 = "PlayerTwo_" + System.currentTimeMillis();
+
+        webTestClient.post().uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new CreateGameRequest(player1, 1))
+                .exchange().expectStatus().isCreated();
+
+        webTestClient.post().uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new CreateGameRequest(player2, 1))
+                .exchange().expectStatus().isCreated();
+
+        webTestClient.get()
+                .uri("/game?page=0&size=10")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.content").isArray()
+                .jsonPath("$.content.length()").value(length ->
+                        assertThat((Integer) length).isGreaterThanOrEqualTo(2)
+                )
+                .jsonPath("$.totalElements").value(total ->
+                        assertThat((Integer) total).isGreaterThanOrEqualTo(2)
+                )
+                .jsonPath("$.size").isEqualTo(10)
+                .jsonPath("$.page").isEqualTo(0);
+    }
+
+    private void createGame(String playerName) {
+        webTestClient.post()
+                .uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(new CreateGameRequest(playerName, 1))
+                .exchange()
+                .expectStatus().isCreated();
     }
 }

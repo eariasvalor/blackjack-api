@@ -4,6 +4,7 @@ import com.blackjack.application.exception.PlayerNotFoundException;
 import com.blackjack.application.usecase.game.*;
 import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +24,29 @@ class DeletePlayerControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private DeletePlayerUseCase deletePlayerUseCase;
+    private GetRankingUseCase getRankingUseCase;
+
+    @MockBean
+    private CreateGameUseCase createGameUseCase;
+
+    @MockBean
+    private GetGameByIdUseCase getGameByIdUseCase;
+
+    @MockBean
+    private PlayGameUseCase playGameUseCase;
+
+    @MockBean
+    private DeleteGameUseCase deleteGameUseCase;
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
+
 
     @Test
     @DisplayName("DELETE /player/{id} - Should return 204 No Content")

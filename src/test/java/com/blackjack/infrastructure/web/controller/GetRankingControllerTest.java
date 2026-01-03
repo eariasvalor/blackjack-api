@@ -2,10 +2,8 @@ package com.blackjack.infrastructure.web.controller;
 
 import com.blackjack.application.dto.response.PageResponse;
 import com.blackjack.application.dto.response.PlayerRankingResponse;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.game.*;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
 import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import org.junit.jupiter.api.DisplayName;
@@ -46,6 +44,12 @@ class GetRankingControllerTest {
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
     @DisplayName("GET /ranking - Should return first page with default parameters")

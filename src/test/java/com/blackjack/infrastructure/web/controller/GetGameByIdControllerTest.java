@@ -2,11 +2,10 @@ package com.blackjack.infrastructure.web.controller;
 
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.application.exception.GameNotFoundException;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.game.*;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import com.blackjack.domain.model.valueobject.game.DeckCount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +29,13 @@ class GetGameByIdControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private GetGameByIdUseCase getGameByIdUseCase;
+    private GetRankingUseCase getRankingUseCase;
 
     @MockBean
-    private com.blackjack.application.usecase.game.CreateGameUseCase createGameUseCase;
+    private CreateGameUseCase createGameUseCase;
+
+    @MockBean
+    private GetGameByIdUseCase getGameByIdUseCase;
 
     @MockBean
     private PlayGameUseCase playGameUseCase;
@@ -43,6 +45,12 @@ class GetGameByIdControllerTest {
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
     @DisplayName("GET /game/{id} - Should return 200 OK when game exists")

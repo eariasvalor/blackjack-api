@@ -3,20 +3,21 @@ package com.blackjack.infrastructure.web.controller;
 import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.request.PlayGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.dto.response.PageResponse;
+import com.blackjack.application.mapper.GameResponseMapper;
+import com.blackjack.application.usecase.game.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -29,6 +30,7 @@ public class GameController {
     private final GetGameByIdUseCase getGameByIdUseCase;
     private final PlayGameUseCase playGameUseCase;
     private final DeleteGameUseCase deleteGameUseCase;
+    private final GetAllGamesUseCase getAllGamesUseCase;
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
@@ -81,5 +83,21 @@ public class GameController {
         return deleteGameUseCase.execute(id)
                 .then(Mono.just(ResponseEntity.noContent().<Void>build()))
                 .doOnSuccess(response -> log.info("DELETE /game/{}/delete - Game deleted successfully", id));
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all games", description = "Retrieves a paginated list of games")
+    public Mono<ResponseEntity<PageResponse<GameResponse>>> getAllGames(
+            @Parameter(description = "Page number (0-based)")
+            @RequestParam(defaultValue = "0") int page,
+
+            @Parameter(description = "Page size")
+            @RequestParam(defaultValue = "10") int size) {
+
+        log.info("GET /game - Request to get games page: {}, size: {}", page, size);
+
+        return getAllGamesUseCase.execute(page, size)
+                .map(ResponseEntity::ok)
+                .doOnSuccess(r -> log.info("GET /game - Games page retrieved successfully"));
     }
 }

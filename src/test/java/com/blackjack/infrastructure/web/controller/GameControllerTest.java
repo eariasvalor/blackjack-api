@@ -2,11 +2,10 @@ package com.blackjack.infrastructure.web.controller;
 
 import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.game.*;
+import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import com.blackjack.domain.model.valueobject.game.DeckCount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,9 @@ class GameControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
+    private GetRankingUseCase getRankingUseCase;
+
+    @MockBean
     private CreateGameUseCase createGameUseCase;
 
     @MockBean
@@ -45,6 +47,12 @@ class GameControllerTest {
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")

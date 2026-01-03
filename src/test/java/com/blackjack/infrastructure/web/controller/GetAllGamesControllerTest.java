@@ -1,6 +1,7 @@
 package com.blackjack.infrastructure.web.controller;
 
-import com.blackjack.application.exception.GameNotFoundException;
+import com.blackjack.application.dto.response.GameResponse;
+import com.blackjack.application.dto.response.PageResponse;
 import com.blackjack.application.usecase.game.*;
 import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
@@ -13,12 +14,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.util.List;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyInt;
 @WebFluxTest(GameController.class)
-class DeleteGameControllerTest {
+class GetAllGamesControllerTest {
 
     @Autowired
     private WebTestClient webTestClient;
@@ -48,35 +49,28 @@ class DeleteGameControllerTest {
     private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
-    @DisplayName("DELETE /game/{id}/delete - Should delete game successfully")
-    void shouldDeleteGameSuccessfully() {
-        String gameId = "game-123";
+    @DisplayName("GET /game - Should return paginated games")
+    void shouldReturnPaginatedGames() {
+        GameResponse gameResponse = new GameResponse("game-1", "p-1", "Player", List.of(), List.of(), 0, 0, "PLAYING", List.of(), null, null, null
+        );;
+        PageResponse<GameResponse> pageResponse = PageResponse.of(
+                List.of(gameResponse), 0, 10, 1L
+        );
 
-        when(deleteGameUseCase.execute(anyString()))
-                .thenReturn(Mono.empty());
+        when(getAllGamesUseCase.execute(anyInt(), anyInt()))
+                .thenReturn(Mono.just(pageResponse));
 
-        webTestClient.delete()
-                .uri("/game/{id}/delete", gameId)
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder.path("/game")
+                        .queryParam("page", "0")
+                        .queryParam("size", "10")
+                        .build())
                 .exchange()
-                .expectStatus().isNoContent();
-
-        verify(deleteGameUseCase).execute(gameId);
-    }
-
-    @Test
-    @DisplayName("DELETE /game/{id}/delete - Should return 404 when game not found")
-    void shouldReturn404WhenGameNotFound() {
-        String gameId = "non-existent-game";
-
-        when(deleteGameUseCase.execute(anyString()))
-                .thenReturn(Mono.error(new GameNotFoundException(gameId)));
-
-        webTestClient.delete()
-                .uri("/game/{id}/delete", gameId)
-                .exchange()
-                .expectStatus().isNotFound()
+                .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.status").isEqualTo(404)
-                .jsonPath("$.error").isEqualTo("Not Found");
+                .jsonPath("$.content").isArray()
+                .jsonPath("$.content.length()").isEqualTo(1)
+                .jsonPath("$.totalElements").isEqualTo(1)
+                .jsonPath("$.totalPages").isEqualTo(1);
     }
 }

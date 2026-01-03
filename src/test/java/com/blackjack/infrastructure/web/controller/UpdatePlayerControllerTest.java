@@ -3,12 +3,10 @@ package com.blackjack.infrastructure.web.controller;
 import com.blackjack.application.dto.request.UpdatePlayerRequest;
 import com.blackjack.application.dto.response.PlayerResponse;
 import com.blackjack.application.exception.PlayerNotFoundException;
-import com.blackjack.application.usecase.game.CreateGameUseCase;
-import com.blackjack.application.usecase.game.DeleteGameUseCase;
-import com.blackjack.application.usecase.game.GetGameByIdUseCase;
-import com.blackjack.application.usecase.game.PlayGameUseCase;
+import com.blackjack.application.usecase.game.*;
 import com.blackjack.application.usecase.player.DeletePlayerUseCase;
 import com.blackjack.application.usecase.player.UpdatePlayerNameUseCase;
+import com.blackjack.application.usecase.ranking.GetRankingUseCase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,7 @@ class UpdatePlayerControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private DeleteGameUseCase deleteGameUseCase;
+    private GetRankingUseCase getRankingUseCase;
 
     @MockBean
     private CreateGameUseCase createGameUseCase;
@@ -44,10 +42,16 @@ class UpdatePlayerControllerTest {
     private PlayGameUseCase playGameUseCase;
 
     @MockBean
-    private DeletePlayerUseCase deletePlayerUseCase;
+    private DeleteGameUseCase deleteGameUseCase;
 
     @MockBean
     private UpdatePlayerNameUseCase updatePlayerNameUseCase;
+
+    @MockBean
+    private GetAllGamesUseCase getAllGamesUseCase;
+
+    @MockBean
+    private DeletePlayerUseCase deletePlayerUseCase;
 
     @Test
     @DisplayName("PUT /player/{id} - Should update player name successfully")

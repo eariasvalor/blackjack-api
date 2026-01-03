@@ -14,4 +14,6 @@ public interface GameRepository {
     Flux<Game> findAllActive();
     Mono<Boolean> existsById(GameId id);
     Mono<Void> deleteByPlayerId(PlayerId playerId);
+    Flux<Game> findAll(int page, int size);
+    Mono<Long> count();
 }
