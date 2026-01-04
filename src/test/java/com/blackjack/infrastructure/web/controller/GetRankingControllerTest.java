@@ -51,6 +51,9 @@ class GetRankingControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("GET /ranking - Should return first page with default parameters")
     void shouldReturnFirstPageWithDefaultParameters() {

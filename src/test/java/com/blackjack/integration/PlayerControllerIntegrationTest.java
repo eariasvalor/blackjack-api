@@ -56,7 +56,7 @@ class PlayerControllerIntegrationTest {
         StepVerifier.create(playerRepository.existsById(PlayerId.from(playerId)))
                 .expectNext(false).verifyComplete();
 
-        StepVerifier.create(gameRepository.findByPlayerId(PlayerId.from(playerId)))
+        StepVerifier.create(gameRepository.findByPlayerId(PlayerId.from(playerId), 0, 10))
                 .expectNextCount(0).verifyComplete();
     }
 }

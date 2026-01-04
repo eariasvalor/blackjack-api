@@ -39,6 +39,9 @@ class GlobalExceptionHandlerTest {
     @MockBean
     private GetAllGamesUseCase getAllGamesUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
 
     @Test
     @DisplayName("Should handle GameNotFoundException and return 404")

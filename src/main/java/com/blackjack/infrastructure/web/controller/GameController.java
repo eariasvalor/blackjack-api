@@ -31,6 +31,7 @@ public class GameController {
     private final PlayGameUseCase playGameUseCase;
     private final DeleteGameUseCase deleteGameUseCase;
     private final GetAllGamesUseCase getAllGamesUseCase;
+    private final GetGamesByPlayerUseCase getGamesByPlayerUseCase;
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
@@ -99,5 +100,18 @@ public class GameController {
         return getAllGamesUseCase.execute(page, size)
                 .map(ResponseEntity::ok)
                 .doOnSuccess(r -> log.info("GET /game - Games page retrieved successfully"));
+    }
+
+    @GetMapping("/player/{playerId}")
+    @Operation(summary = "Get games by player", description = "Retrieves paginated games for a specific player")
+    public Mono<ResponseEntity<PageResponse<GameResponse>>> getGamesByPlayer(
+            @PathVariable String playerId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        log.info("GET /game/player/{} - Request games page {}, size {}", playerId, page, size);
+
+        return getGamesByPlayerUseCase.execute(playerId, page, size)
+                .map(ResponseEntity::ok);
     }
 }

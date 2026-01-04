@@ -54,6 +54,9 @@ class PlayGameControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("POST /game/{id}/play - Should execute HIT action successfully")
     void shouldExecuteHitActionSuccessfully() {

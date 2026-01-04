@@ -47,6 +47,9 @@ class DeletePlayerControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
 
     @Test
     @DisplayName("DELETE /player/{id} - Should return 204 No Content")

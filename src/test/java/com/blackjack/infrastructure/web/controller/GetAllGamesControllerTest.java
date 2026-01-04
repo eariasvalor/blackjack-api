@@ -48,6 +48,9 @@ class GetAllGamesControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("GET /game - Should return paginated games")
     void shouldReturnPaginatedGames() {

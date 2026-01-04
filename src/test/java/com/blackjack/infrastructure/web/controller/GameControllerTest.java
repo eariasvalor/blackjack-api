@@ -54,6 +54,9 @@ class GameControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("POST /game/new - Should create a new game and return 201 Created")
     void shouldCreateNewGame() {

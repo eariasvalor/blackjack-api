@@ -47,6 +47,9 @@ class DeleteGameControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("DELETE /game/{id}/delete - Should delete game successfully")
     void shouldDeleteGameSuccessfully() {

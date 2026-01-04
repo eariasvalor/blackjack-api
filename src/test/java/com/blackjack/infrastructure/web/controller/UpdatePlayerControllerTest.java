@@ -53,6 +53,9 @@ class UpdatePlayerControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("PUT /player/{id} - Should update player name successfully")
     void shouldUpdatePlayerNameSuccessfully() {

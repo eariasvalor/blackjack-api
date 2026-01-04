@@ -52,6 +52,9 @@ class GetGameByIdControllerTest {
     @MockBean
     private DeletePlayerUseCase deletePlayerUseCase;
 
+    @MockBean
+    private GetGamesByPlayerUseCase getGamesByPlayerUseCase;
+
     @Test
     @DisplayName("GET /game/{id} - Should return 200 OK when game exists")
     void shouldReturn200WhenGameExists() {

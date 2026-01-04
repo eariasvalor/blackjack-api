@@ -4,10 +4,8 @@ import com.blackjack.application.dto.request.CreateGameRequest;
 import com.blackjack.application.dto.response.GameResponse;
 import com.blackjack.config.TestcontainersConfiguration;
 import com.blackjack.domain.model.aggregate.Game;
-import com.blackjack.domain.model.aggregate.Player;
 import com.blackjack.domain.model.valueobject.game.GameId;
 import com.blackjack.domain.model.valueobject.game.GameStatus;
-import com.blackjack.domain.model.valueobject.player.PlayerId;
 import com.blackjack.domain.repository.GameRepository;
 import com.blackjack.domain.repository.PlayerRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -192,4 +190,46 @@ class GameControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isCreated();
     }
+
+    @Test
+    @DisplayName("Should retrieve games by player id")
+    void shouldRetrieveGamesByPlayerId() {
+        String uniqueName = "testName_" + System.currentTimeMillis();
+        CreateGameRequest createRequest = new CreateGameRequest(uniqueName, 1);
+
+        GameResponse createdGame = webTestClient.post()
+                .uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(createRequest)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(GameResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertThat(createdGame).isNotNull();
+        String playerId = createdGame.playerId();
+
+        webTestClient.post()
+                .uri("/game/new")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(createRequest)
+                .exchange()
+                .expectStatus().isCreated();
+
+        webTestClient.get()
+                .uri("/game/player/{id}", playerId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.content").isArray()
+                .jsonPath("$.content.length()").isEqualTo(2)
+
+                .jsonPath("$.content[0].playerName").isEqualTo(uniqueName)
+                .jsonPath("$.content[0].playerId").isEqualTo(playerId)
+
+                .jsonPath("$.totalElements").isEqualTo(2)
+                .jsonPath("$.page").isEqualTo(0);
+    }
+
 }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -81,14 +82,10 @@ public class GameRepositoryAdapter implements GameRepository {
     }
 
     @Override
-    public Flux<Game> findByPlayerId(PlayerId playerId) {
-        log.debug("Finding games by player id in MongoDB: {}", playerId.value());
-
-        return mongoRepository.findByPlayerId(playerId.value())
-                .map(mapper::toDomain)
-                .doOnComplete(() ->
-                        log.debug("Completed finding games for player: {}", playerId.value())
-                );
+    public Flux<Game> findByPlayerId(PlayerId playerId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return mongoRepository.findByPlayerId(playerId.value(), pageable)
+                .map(mapper::toDomain);
     }
 
     @Override
@@ -139,4 +136,10 @@ public class GameRepositoryAdapter implements GameRepository {
     public Mono<Long> count() {
         return mongoRepository.count();
     }
+
+    @Override
+    public Mono<Long> countByPlayerId(PlayerId playerId) {
+        return mongoRepository.countByPlayerId(playerId.value());
+    }
+
 }
