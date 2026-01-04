@@ -35,11 +35,23 @@ public class GameController {
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create a new game", description = "Creates a new Blackjack game for a player")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Game created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Mono<GameResponse> createGame(@RequestBody @Valid CreateGameRequest request) {
         return createGameUseCase.execute(request);
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get game by ID", description = "Retrieves a specific game by its unique identifier")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Game found"),
+            @ApiResponse(responseCode = "404", description = "Game not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Mono<ResponseEntity<GameResponse>> getGameById(@PathVariable String id) {
         return getGameByIdUseCase.execute(id)
                 .map(ResponseEntity::ok);
@@ -88,6 +100,10 @@ public class GameController {
 
     @GetMapping
     @Operation(summary = "Get all games", description = "Retrieves a paginated list of games")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Games retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Mono<ResponseEntity<PageResponse<GameResponse>>> getAllGames(
             @Parameter(description = "Page number (0-based)")
             @RequestParam(defaultValue = "0") int page,
@@ -104,6 +120,11 @@ public class GameController {
 
     @GetMapping("/player/{playerId}")
     @Operation(summary = "Get games by player", description = "Retrieves paginated games for a specific player")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Games retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Player not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public Mono<ResponseEntity<PageResponse<GameResponse>>> getGamesByPlayer(
             @PathVariable String playerId,
             @RequestParam(defaultValue = "0") int page,
