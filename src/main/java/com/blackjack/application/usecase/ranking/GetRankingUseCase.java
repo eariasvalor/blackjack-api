@@ -16,7 +16,7 @@ public class GetRankingUseCase {
     private final PlayerRepository playerRepository;
 
     public Mono<PageResponse<PlayerRankingResponse>> execute(int page, int size) {
-                int validatedPage = Math.max(0, page);
+        int validatedPage = Math.max(0, page);
         int validatedSize = Math.min(Math.max(1, size), 100);
 
         log.info("Getting ranking - page: {}, size: {}", validatedPage, validatedSize);
@@ -29,15 +29,15 @@ public class GetRankingUseCase {
                         player.getName().value(),
                         player.getGamesPlayed(),
                         player.getGamesWon(),
-                        player.getWinRate() /100.0
+                        player.getWinRate() / 100.0
                 ))
                 .collectList()
                 .zipWith(playerRepository.count())
                 .map(tuple -> {
                     PageResponse<PlayerRankingResponse> response = PageResponse.of(
-                            tuple.getT1(),                              validatedPage,
+                            tuple.getT1(), validatedPage,
                             validatedSize,
-                            tuple.getT2()                       );
+                            tuple.getT2());
 
                     log.info("Ranking retrieved - page: {}/{}, total: {}",
                             validatedPage + 1, response.totalPages(), tuple.getT2());
